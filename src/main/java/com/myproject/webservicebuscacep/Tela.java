@@ -6,7 +6,13 @@ package com.myproject.webservicebuscacep;
 
 import java.awt.Graphics;
 import java.awt.Image;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.ImageIcon;
+import javax.swing.JOptionPane;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  *
@@ -52,6 +58,10 @@ public class Tela extends javax.swing.JFrame {
         txtUf = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("Busca CEP");
+        setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        setName("Busca CEP"); // NOI18N
+        setResizable(false);
 
         jPanel1.setBackground(new java.awt.Color(255, 255, 255));
 
@@ -65,6 +75,12 @@ public class Tela extends javax.swing.JFrame {
         jButton1.setText("Buscar CEP");
         jButton1.setToolTipText("Clique para buscar o CEP informado");
         jButton1.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        jButton1.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
 
         jLayeredPane1.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), "Endereço"));
         jLayeredPane1.setForeground(new java.awt.Color(102, 102, 255));
@@ -168,9 +184,9 @@ public class Tela extends javax.swing.JFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(txtCep, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 50, Short.MAX_VALUE)
                 .addComponent(jLayeredPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(50, Short.MAX_VALUE))
+                .addContainerGap())
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -186,6 +202,25 @@ public class Tela extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        String cep = txtCep.getText();
+        try {
+            WebService buscaCEP = new WebService();
+            String dadosBuscados = buscaCEP.buscaCep(cep);
+            JSONObject json = new JSONObject(dadosBuscados);
+            txtRua.setText(json.getString("logradouro"));
+            txtBairro.setText(json.getString("bairro"));
+            txtCidade.setText(json.getString("localidade"));
+            txtUf.setText(json.getString("uf"));
+        } catch (IOException | java.lang.IllegalArgumentException ex) {
+            JOptionPane.showMessageDialog(null, ex.getMessage());
+        } catch(JSONException ex){
+            JOptionPane.showMessageDialog(null, "Endereço não encontrado");
+        } catch(NullPointerException ex){
+            JOptionPane.showMessageDialog(null, "Informe um CEP");
+        }
+    }//GEN-LAST:event_jButton1ActionPerformed
 
     /**
      * @param args the command line arguments
